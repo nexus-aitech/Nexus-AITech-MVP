@@ -13,7 +13,7 @@ async def get_kucoin_price(symbol="ETH-USDC"):
             }
 
 # ==== Blockchain: ANKR ====
-async def await get_latest_blockchain_data():
+async def get_latest_blockchain_data():
     ankr_url = "https://rpc.ankr.com/multichain"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -28,7 +28,7 @@ async def await get_latest_blockchain_data():
             return {"latest_block_hex": result.get("result")}
 
 # ==== CoinMarketCap ====
-async def await get_coinmarketcap_price(symbol="SOL_USDC"):
+async def get_coinmarketcap_price(symbol="SOL_USDC"):
     url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol={symbol}"
     headers = {"X-CMC_PRO_API_KEY": os.getenv("COINMARKETCAP_API_KEY")}
     async with aiohttp.ClientSession() as session:
@@ -40,7 +40,7 @@ async def await get_coinmarketcap_price(symbol="SOL_USDC"):
             }
 
 # ==== BingX Price ====
-async def await get_bingx_price(symbol="ARB-USDC"):
+async def get_bingx_price(symbol="ARB-USDC"):
     url = f"https://open-api.bingx.com/openApi/swap/v2/quote/price?symbol={symbol}"
     headers = {"X-BX-APIKEY": os.getenv("BINGX_API_KEY")}
     async with aiohttp.ClientSession() as session:
@@ -49,7 +49,7 @@ async def await get_bingx_price(symbol="ARB-USDC"):
             return {"symbol": symbol, "price": data.get("price")}
 
 # ==== Bitget ====
-async def await get_bitget_price(symbol="AVAX_USDC"):
+async def get_bitget_price(symbol="AVAX_USDC"):
     url = f"https://api.bitget.com/api/spot/v1/market/ticker?symbol={symbol}"
     headers = {"ACCESS-KEY": os.getenv("BITGET_API_KEY")}
     async with aiohttp.ClientSession() as session:

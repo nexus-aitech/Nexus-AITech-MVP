@@ -5,7 +5,7 @@ import os
 import traceback
 import threading
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 # مسیر پروژه برای ایمپورت داخلی
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
@@ -35,7 +35,7 @@ bot_status = {
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"status": "Core Coordinator is Running!", "message": "Use /api/process or /status to interact."})
+    return render_template("index.html")
 
 @app.route("/api/process", methods=["POST"])
 def process_request():

@@ -106,7 +106,7 @@ if __name__ == "__main__":
     log_info("🔥 راه‌اندازی Core Coordinator...")
     app.run(
         host=MVP_CONFIG.get("HOST", "0.0.0.0"),
-        port=5002,
+        port=5000,
         debug=MVP_CONFIG.get("DEBUG", False),
         threaded=True
     )

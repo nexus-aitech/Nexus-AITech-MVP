@@ -1,0 +1,5 @@
+2025-03-16 01:36:20,538 - INFO - {"level": "INFO", "message": "✅ Logger برای اجرای زنده آماده است!"}
+2025-03-16 01:36:20,539 - DEBUG - {"level": "DEBUG", "message": " این یک لاگ Debug است."}
+2025-03-16 01:36:20,539 - WARNING - {"level": "WARNING", "message": "⚠️ تست هشدار لاگ"}
+2025-03-16 01:36:20,539 - ERROR - {"level": "ERROR", "message": "❌ تست خطای لاگ"}
+2025-03-16 01:36:20,539 - CRITICAL - {"level": "CRITICAL", "message": " تست لاگ بحرانی"}

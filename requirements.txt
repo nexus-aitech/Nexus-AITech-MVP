@@ -1,1 +1,11 @@
-# Dependencies
+numpy
+pandas
+flask
+psutil
+redis
+asyncio
+pymongo
+motor
+tensorflow
+scikit-learn
+python-dotenv

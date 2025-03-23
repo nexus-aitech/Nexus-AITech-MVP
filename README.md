@@ -16,24 +16,56 @@ This MVP demonstrates the **core functionalities** of Nexus-AITech and serves as
 
 ---
 
+### 💻 System Requirements  
+#### **Minimum Hardware Requirements:**  
+- ✅ **CPU:** Intel i7 / AMD Ryzen 7 or higher  
+- ✅ **RAM:** 8GB minimum (16GB recommended)  
+- ✅ **GPU:** NVIDIA RTX 4060 or higher (for AI-based features)  
+- ✅ **Storage:** SSD with at least 50GB free space  
+
+#### **Software Requirements:**  
+- ✅ **OS:** Windows 10/11, macOS, or Linux  
+- ✅ **Python Version:** 3.9+  
+- ✅ **Dependencies:** Install using `pip install -r requirements.txt`  
+
+---
+
+### 📂 Project Structure  
+```
+Nexus-AITech/
+│── core/               # Core Coordinator and API management
+│── security/           # AI-powered cybersecurity modules
+│── analytics/          # Data analysis and AI-driven insights
+│── fintech/            # Smart fintech transaction processing
+│── metaverse/          # Metaverse tracking and user analytics
+│── ai_teachers/        # AI-powered educational assistant
+│── blockchain/         # Blockchain interaction and monitoring
+│── dashboard.py        # Main dashboard for visualizing real-time data
+│── main.py             # MVP entry point
+│── config.py           # Configuration settings for MVP
+│── README.md           # Documentation
+```
+
+---
+
 ### ⚡ How to Run the MVP  
 
-#### **1️⃣ Install Dependencies**
+#### **1️⃣ Install Dependencies**  
 ```sh
 pip install -r requirements.txt
 ```
 
-#### **2️⃣ Start the Core Coordinator**
+#### **2️⃣ Start the Core Coordinator**  
 ```sh
-python core_coordinator_mvp.py
+python core/core_coordinator_mvp.py
 ```
 
-#### **3️⃣ Run the Dashboard**
+#### **3️⃣ Run the Dashboard**  
 ```sh
 python dashboard.py
 ```
 
-#### **4️⃣ Open the Dashboard in Your Browser**
+#### **4️⃣ Open the Dashboard in Your Browser**  
 ```
 http://127.0.0.1:8050
 ```
@@ -42,19 +74,36 @@ http://127.0.0.1:8050
 
 ---
 
-### 🔥 Use Cases  
+### 🔥 API Endpoints  
+#### **1️⃣ Get System Status**  
+```http
+GET /api/status
+```
+📌 **Returns:** Real-time CPU, RAM usage, and bot status.  
 
-📌 **🔐 Cybersecurity Monitoring**  
-✅ AI-powered detection of cyber threats in real-time  
-✅ Automatic mitigation strategies for potential risks  
+#### **2️⃣ Fetch Cybersecurity Data**  
+```http
+GET /api/cybersecurity
+```
+📌 **Returns:** AI-driven security threat analysis.  
 
-📌 **💳 Fintech AI & Smart Transactions**  
-✅ Automated financial transactions using **NXAIT token**  
-✅ AI-driven analytics for fraud detection  
+#### **3️⃣ Fetch Blockchain Status**  
+```http
+GET /api/blockchain
+```
+📌 **Returns:** Live blockchain transaction and block info.  
 
-📌 **🌍 AI-Powered Metaverse Integration**  
-✅ Live tracking of active users inside the Metaverse  
-✅ Personalized AI interactions and smart NPC management  
+---
+
+### 🛠 Troubleshooting  
+#### ❌ **Core Coordinator is not running?**  
+✅ **Solution:** Ensure that port 5000 is free and `core_coordinator_mvp.py` is executed.  
+
+#### ❌ **Dashboard not displaying data?**  
+✅ **Solution:** Check that all bots are running and API is accessible.  
+
+#### ❌ **Slow performance?**  
+✅ **Solution:** Upgrade to **16GB RAM** and ensure **GPU acceleration** is enabled.  
 
 ---
 

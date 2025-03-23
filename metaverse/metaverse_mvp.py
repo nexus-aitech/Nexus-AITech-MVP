@@ -1,33 +1,70 @@
-import requests
+import asyncio
+import json
 import random
+import sys
+import os
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from utils.logger import log_info, log_error
+from ai_engine import DeepLearningPredictor
+from database import fetch_metaverse_data, store_metaverse_activity
 
-# آدرس سرور مرکزی (Core Coordinator)
-CORE_URL = "http://localhost:5000/api/process"
+# اضافه کردن مسیر پروژه برای اطمینان از ایمپورت صحیح ماژول‌ها
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
 
-def connect_to_metaverse():
-    """ شبیه‌سازی اتصال به متاورس """
-    print("🌐 در حال برقراری ارتباط با سرور متاورس...")
+INPUT_SHAPE = 10
 
-    # اطلاعات متاورس آزمایشی
-    metaverse_data = {
-        "status": "Connecting",
-        "active_users": random.randint(50, 500),
-        "server": "MetaWorld-1"
-    }
+# مقداردهی اولیه مدل یادگیری عمیق
+try:
+    dl_model = DeepLearningPredictor(input_shape=INPUT_SHAPE)
+except Exception as e:
+    log_error(f"🚨 خطا در مقداردهی مدل یادگیری عمیق: {str(e)}")
+    dl_model = None
 
-    print(f"🔹 اطلاعات متاورس: {metaverse_data}")
+async def connect_to_metaverse():
+    """🌐 دریافت داده‌های زنده از سرورهای متاورس و ذخیره‌سازی"""
+    try:
+        live_data = await fetch_metaverse_data()
+        if not live_data:
+            log_info("⚠️ داده‌ای از متاورس دریافت نشد. مقدار پیش‌فرض استفاده می‌شود.")
+            live_data = {"active_users": 0, "server": "Unknown"}
 
-    # ارسال درخواست به Core Coordinator
-    response = requests.post(CORE_URL, json={"bot_name": "metaverse"})
+        active_users = live_data.get("active_users", 0)
+        server_name = live_data.get("server", "Unknown")
+        
+        metaverse_data = {
+            "status": "Connected",
+            "active_users": active_users,
+            "server": server_name,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        try:
+            await store_metaverse_activity(metaverse_data)
+            log_info(f"🌐 اطلاعات زنده متاورس: {json.dumps(metaverse_data, ensure_ascii=False)}")
+        except Exception as e:
+            log_error(f"🚨 خطا در ذخیره‌سازی داده‌های متاورس: {str(e)}")
+        
+        return {
+            "bot_name": "metaverse",
+            "active_users": active_users
+        }
     
-    if response.status_code == 200:
-        data = response.json()
-        print(f"✅ پاسخ Core Coordinator: {data['response']}")
-    else:
-        print("❌ خطا در دریافت پاسخ از Core Coordinator!")
+    except Exception as e:
+        log_error(f"🚨 خطا در دریافت داده‌های متاورس: {str(e)}")
+        return {"bot_name": "metaverse", "active_users": 0}
 
+async def run_metaverse_bot():
+    """🔄 اجرای مداوم مانیتورینگ متاورس"""
+    while True:
+        await connect_to_metaverse()
+        await asyncio.sleep(10)
+
+# فقط اگر مستقیم اجرا شود
 if __name__ == "__main__":
-    connect_to_metaverse()
-
-# Metaverse Mvp
-print('Executing metaverse_mvp.py')
+    log_info("✅ Metaverse Module Running...")
+    try:
+        asyncio.run(run_metaverse_bot())
+    except RuntimeError as e:
+        log_error(f"❌ خطا در اجرای متاورس: {e}")

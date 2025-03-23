@@ -1,45 +1,70 @@
-import requests
-import random
+import asyncio
+import logging
+import sys
+import os
+from typing import Dict, List
+from datetime import datetime
+from utils.logger import log_info, log_error
 
-# آدرس سرور مرکزی (Core Coordinator)
-CORE_URL = "http://localhost:5000/api/process"
+# اضافه کردن مسیر پروژه به sys.path
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
 
-# لیست دروس تستی
-lessons = [
-    "🔹 درس ۱: مقدمه‌ای بر هوش مصنوعی",
-    "🔹 درس ۲: یادگیری ماشین چیست؟",
-    "🔹 درس ۳: پردازش زبان طبیعی (NLP)",
-    "🔹 درس ۴: شبکه‌های عصبی عمیق (Deep Learning)",
-    "🔹 درس ۵: کاربردهای AI در فین‌تک"
-]
+# تنظیم لاگر داخلی برای اطمینان از لاگ‌گیری
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def teach_lesson():
-    """ شبیه‌سازی آموزش یک درس توسط معلم هوشمند """
-    print("🎓 معلم هوشمند در حال ارائه درس...")
+class AIRecommendationModel:
+    """مدل پیشنهادی هوش مصنوعی برای انتخاب درس مناسب"""
+    def recommend_lesson(self, user_id: str) -> str:
+        return f"Lesson for {user_id}"
 
-    # انتخاب یک درس تصادفی
-    selected_lesson = random.choice(lessons)
-    students_online = random.randint(5, 50)
+class AITeacherSimulator:
+    """شبیه‌ساز معلم هوشمند برای آموزش به دانش‌آموزان"""
+    def __init__(self):
+        self.ai_model = AIRecommendationModel()
 
-    ai_teacher_data = {
-        "lesson": selected_lesson,
-        "students_online": students_online
-    }
+    async def fetch_lesson(self, user_id: str) -> str:
+        await asyncio.sleep(1)
+        return self.ai_model.recommend_lesson(user_id)
 
-    print(f"📚 ارائه‌ی درس: {selected_lesson}")
-    print(f"👩‍🎓 تعداد دانش‌آموزان آنلاین: {students_online}")
+    async def teach_lesson(self, students: List[str]) -> Dict[str, str]:
+        if not students:
+            log_info("🚫 هیچ دانش‌آموز فعالی برای تدریس وجود ندارد.")
+            return {}
+        
+        log_info("📚 در حال ارائه درس به دانش‌آموزان...")
+        tasks = {student: self.fetch_lesson(student) for student in students}
+        results = await asyncio.gather(*tasks.values(), return_exceptions=True)
+        
+        lesson_results = {}
+        for student, result in zip(tasks.keys(), results):
+            if isinstance(result, Exception):
+                log_error(f"❌ خطا در تدریس به {student}: {result}")
+                continue
+            lesson_results[student] = result
+            log_info(f"✅ درس برای {student} ارائه شد: {result}")
+        
+        return lesson_results
 
-    # ارسال درخواست به Core Coordinator
-    response = requests.post(CORE_URL, json={"bot_name": "ai_teacher"})
-    
-    if response.status_code == 200:
-        data = response.json()
-        print(f"✅ پاسخ Core Coordinator: {data['response']}")
-    else:
-        print("❌ خطا در دریافت پاسخ از Core Coordinator!")
+async def simulate_ai_teacher():
+    """شبیه‌سازی معلم هوشمند"""
+    log_info("📚 شبیه‌سازی معلم هوشمند در حال اجرا...")
+    await asyncio.sleep(2)
+    log_info("📚 شبیه‌سازی معلم هوشمند کامل شد.")
+
+async def start_ai_teacher():
+    """اجرای زنده معلم هوشمند با زمان‌بندی وظایف"""
+    ai_teacher = AITeacherSimulator()
+    try:
+        while True:
+            students = ["user1", "user2", "user3"]
+            await ai_teacher.teach_lesson(students)
+            await asyncio.sleep(10)
+    except asyncio.CancelledError:
+        log_info("🛑 اجرای معلم هوشمند متوقف شد.")
 
 if __name__ == "__main__":
-    teach_lesson()
-
-# Ai Teacher Mvp
-print('Executing ai_teacher_mvp.py')
+    log_info("🚀 AI Teacher در حال راه‌اندازی برای اجرای زنده...")
+    try:
+        asyncio.run(start_ai_teacher())
+    except RuntimeError as e:
+        log_error(f"❌ خطا در اجرای معلم هوشمند: {e}")

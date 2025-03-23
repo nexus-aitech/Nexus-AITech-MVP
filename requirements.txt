@@ -9,3 +9,4 @@ motor
 tensorflow
 scikit-learn
 python-dotenv
+matplotlib

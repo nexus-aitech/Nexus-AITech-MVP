@@ -82,7 +82,7 @@ BOTS = {
 
 def run_api():
     """اجرای Flask API مانیتورینگ"""
-    PORT = int(os.getenv("PORT", 5002))  # دریافت پورت از ENV یا استفاده از پیش‌فرض
+    PORT = int(os.getenv("PORT", 5000))  # دریافت پورت از ENV یا استفاده از پیش‌فرض
     app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
 
 def async_run_bot(bot_name, bot_status):

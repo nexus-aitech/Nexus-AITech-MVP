@@ -52,7 +52,22 @@ async def get_bingx_price(symbol="ARB-USDC"):
 async def get_bitget_price(symbol="AVAX_USDC"):
     url = f"https://api.bitget.com/api/spot/v1/market/ticker?symbol={symbol}"
     headers = {"ACCESS-KEY": os.getenv("BITGET_API_KEY")}
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as response:
-            data = await response.json()
-            return {"symbol": symbol, "price": data.get("data", {}).get("last")}
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                if response.status != 200:
+                    return {"symbol": symbol, "price": None, "error": f"HTTP {response.status}"}
+
+                data = await response.json()
+                if data is None:
+                    return {"symbol": symbol, "price": None, "error": "Empty response"}
+
+                return {
+                    "symbol": symbol,
+                    "price": data.get("data", {}).get("last")
+                }
+
+    except Exception as e:
+        return {"symbol": symbol, "price": None, "error": str(e)}
+        

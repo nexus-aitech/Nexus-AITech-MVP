@@ -2,11 +2,15 @@ import asyncio
 import json
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
-
+import traceback
 import threading
 import requests
 from flask import Flask, request, jsonify
+
+# مسیر پروژه برای ایمپورت داخلی
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
+
+# کانفیگ‌ها و توابع داخلی
 from config import MVP_CONFIG
 from utils.logger import log_info, log_error
 from integrations.realtime_api_connectors import (
@@ -19,6 +23,7 @@ from integrations.realtime_api_connectors import (
 
 app = Flask(__name__)
 
+# وضعیت بات‌ها
 bot_status = {
     "ai_teacher": {"status": "Initializing", "students_online": 0, "lesson": None},
     "blockchain": {"status": "Initializing", "latest_block": 0, "transactions": 0},
@@ -52,7 +57,7 @@ def process_request():
         return jsonify({"bot": bot_name, "status": bot_status[bot_name]})
 
     except Exception as e:
-        log_error(f"🚨 خطا در process_request: {str(e)}")
+        log_error(f"🚨 خطا در process_request: {str(e)}\n{traceback.format_exc()}")
         return jsonify({"error": "Internal Server Error"}), 500
 
 @app.route("/status", methods=["GET"])
@@ -78,19 +83,19 @@ async def update_bots():
 
             bot_status["fintech"] = {
                 "status": "Running",
-                "kucoin_price": kucoin_data["price"] if kucoin_data and "price" in kucoin_data else None,
-                "coinmarketcap_price": cmc_data["price"] if cmc_data and "price" in cmc_data else None,
-                "bingx_price": bingx_data["price"] if bingx_data and "price" in bingx_data else None,
-                "bitget_price": bitget_data["price"] if bitget_data and "price" in bitget_data else None
+                "kucoin_price": kucoin_data.get("price") if kucoin_data else None,
+                "coinmarketcap_price": cmc_data.get("price") if cmc_data else None,
+                "bingx_price": bingx_data.get("price") if bingx_data else None,
+                "bitget_price": bitget_data.get("price") if bitget_data else None
             }
 
             bot_status["blockchain"] = {
                 "status": "Running",
-                "latest_block": blockchain_data["latest_block_hex"] if blockchain_data and "latest_block_hex" in blockchain_data else None
+                "latest_block": blockchain_data.get("latest_block_hex") if blockchain_data else None
             }
 
         except Exception as e:
-            log_error(f"🚨 خطا در اجرای بات‌ها: {str(e)}")
+            log_error(f"🚨 خطا در اجرای بات‌ها: {str(e)}\n{traceback.format_exc()}")
 
         await asyncio.sleep(10)
 
@@ -99,14 +104,17 @@ def start_async_loop():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(update_bots())
 
-# استارت ترد مربوط به async
+# اجرای Async در ترد جداگانه
 threading.Thread(target=start_async_loop, daemon=True).start()
 
 if __name__ == "__main__":
     log_info("🔥 راه‌اندازی Core Coordinator...")
+
+    # استفاده از پورت داینامیک برای Railway
+    port = int(os.getenv("PORT", 5000))
     app.run(
-        host=MVP_CONFIG.get("HOST", "0.0.0.0"),
-        port=5000,
+        host="0.0.0.0",
+        port=port,
         debug=MVP_CONFIG.get("DEBUG", False),
         threaded=True
     )

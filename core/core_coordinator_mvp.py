@@ -78,15 +78,15 @@ async def update_bots():
 
             bot_status["fintech"] = {
                 "status": "Running",
-                "kucoin_price": kucoin_data.get("price") if kucoin_data else None,
-                "coinmarketcap_price": cmc_data.get("price") if cmc_data else None,
-                "bingx_price": bingx_data.get("price") if bingx_data else None,
-                "bitget_price": bitget_data.get("price") if bitget_data else None
+                "kucoin_price": kucoin_data["price"] if kucoin_data and "price" in kucoin_data else None,
+                "coinmarketcap_price": cmc_data["price"] if cmc_data and "price" in cmc_data else None,
+                "bingx_price": bingx_data["price"] if bingx_data and "price" in bingx_data else None,
+                "bitget_price": bitget_data["price"] if bitget_data and "price" in bitget_data else None
             }
 
             bot_status["blockchain"] = {
                 "status": "Running",
-                "latest_block": blockchain_data.get("latest_block_hex") if blockchain_data else None
+                "latest_block": blockchain_data["latest_block_hex"] if blockchain_data and "latest_block_hex" in blockchain_data else None
             }
 
         except Exception as e:

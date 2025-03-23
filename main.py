@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
 import multiprocessing
 from blockchain.blockchain_mvp import fetch_transactions_from_network
 import threading
@@ -81,7 +82,8 @@ BOTS = {
 
 def run_api():
     """اجرای Flask API مانیتورینگ"""
-    app.run(host="0.0.0.0", port=5001, debug=False, use_reloader=False)
+    PORT = int(os.getenv("PORT", 5002))  # دریافت پورت از ENV یا استفاده از پیش‌فرض
+    app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
 
 def async_run_bot(bot_name, bot_status):
     """اجرای بات‌های async با مقداردهی صحیح `bot_status`"""

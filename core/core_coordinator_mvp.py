@@ -17,8 +17,6 @@ from integrations.realtime_api_connectors import (
     get_latest_blockchain_data
 )
 
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
-
 app = Flask(__name__)
 
 bot_status = {
@@ -80,14 +78,15 @@ async def update_bots():
 
             bot_status["fintech"] = {
                 "status": "Running",
-                "kucoin_price": kucoin_data,
-                "coinmarketcap_price": cmc_data,
-                "bingx_price": bingx_data,
-                "bitget_price": bitget_data
+                "kucoin_price": kucoin_data.get("price") if kucoin_data else None,
+                "coinmarketcap_price": cmc_data.get("price") if cmc_data else None,
+                "bingx_price": bingx_data.get("price") if bingx_data else None,
+                "bitget_price": bitget_data.get("price") if bitget_data else None
             }
+
             bot_status["blockchain"] = {
                 "status": "Running",
-                "latest_block": blockchain_data.get("latest_block_hex")
+                "latest_block": blockchain_data.get("latest_block_hex") if blockchain_data else None
             }
 
         except Exception as e:
@@ -100,6 +99,7 @@ def start_async_loop():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(update_bots())
 
+# استارت ترد مربوط به async
 threading.Thread(target=start_async_loop, daemon=True).start()
 
 if __name__ == "__main__":

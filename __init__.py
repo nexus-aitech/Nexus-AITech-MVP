@@ -5,7 +5,14 @@ from utils.logger import log_info, log_error, log_warning
 from market_api import get_live_crypto_price
 from price_storage import store_price_data
 
-# 🔹 تعریف پکیج اصلی MVP و ماژول‌های مورد نیاز
+import importlib
+import time
+import logging
+from utils.logger import log_info, log_error, log_warning
+from market_api import get_live_crypto_price
+from price_storage import store_price_data
+
+# 🔹 تعریف ماژول‌های مورد نیاز برای MVP
 modules = [
     "core.core_coordinator_mvp",
     "security.cyber_defense_mvp",
@@ -14,15 +21,15 @@ modules = [
     "metaverse.metaverse_mvp",
     "ai_teachers.ai_teacher_mvp",
     "blockchain.blockchain_mvp",
-    "ai_engine",  # ✅ اضافه کردن ماژول ai_engine
-    "utils.logger",  # ✅ اضافه کردن ماژول logger
-    "database",  # ✅ اضافه کردن ماژول database برای مدیریت اطلاعات زنده
+    "ai_engine",
+    "utils.logger",
+    "database",
 ]
 
-MAX_RETRIES = 2  # 🔄 حداکثر دو تلاش مجدد برای بارگذاری ماژول‌ها
+MAX_RETRIES = 2  # 🔁 تلاش مجدد
 
 def load_module(module):
-    """بارگذاری و بررسی سلامت هر ماژول"""
+    """بارگذاری یک ماژول مشخص"""
     try:
         start_time = time.time()
         importlib.import_module(module)
@@ -35,23 +42,23 @@ def load_module(module):
         log_error(f"⚠️ Unexpected error in {module}: {e}")
     return False
 
-# 🔥 تلاش برای بارگذاری تمامی ماژول‌ها
+# 🔥 بارگذاری ماژول‌ها
 failed_modules = []
 for module in modules:
     if not load_module(module):
         failed_modules.append(module)
 
-# 🚀 تلاش مجدد برای بارگذاری ماژول‌های ناموفق
+# ♻️ تلاش مجدد برای ماژول‌های خطادار
 for retry in range(MAX_RETRIES):
     if not failed_modules:
         break
-    log_warning(f"🔄 تلاش مجدد {retry + 1} برای بارگذاری ماژول‌های ناموفق...")
+    log_warning(f"🔄 تلاش مجدد {retry + 1} برای ماژول‌های ناموفق...")
     for module in failed_modules[:]:
         if load_module(module):
             failed_modules.remove(module)
 
-# 📝 گزارش نهایی بارگذاری ماژول‌ها
+# 🧾 گزارش نهایی
 if not failed_modules:
     log_info("✅ تمامی ماژول‌ها با موفقیت بارگذاری شدند!")
 else:
-    log_error(f"❌ ماژول‌های زیر همچنان خطا دارند: {failed_modules}. لطفاً بررسی کنید.")
+    log_error(f"❌ ماژول‌های زیر همچنان بارگذاری نشدند: {failed_modules}")

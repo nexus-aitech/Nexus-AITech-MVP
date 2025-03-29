@@ -1,1 +1,0 @@
-web: python core/core_coordinator_mvp.py

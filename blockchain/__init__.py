@@ -1,4 +1,4 @@
-from .blockchain_mvp import *
+from blockchain.blockchain_mvp import blockchain_mvp
 print("✅ Blockchain Module Loaded!")
 
 #   Init  

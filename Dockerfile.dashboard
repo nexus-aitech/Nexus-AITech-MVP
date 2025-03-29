@@ -1,0 +1,18 @@
+# 📦 پایه سبک برای داشبورد بدون نیاز به GPU
+FROM python:3.11-slim
+
+# 🛠️ دایرکتوری کاری داخل کانتینر
+WORKDIR /app
+
+# 📦 نصب وابستگی‌ها
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 📁 کپی تمام فایل‌های پروژه
+COPY . .
+
+# 🌍 باز کردن پورت پیش‌فرض Dash
+EXPOSE 8050
+
+# 🚀 اجرای فایل اصلی داشبورد
+CMD ["python", "dashboard_realtime_global.py"]

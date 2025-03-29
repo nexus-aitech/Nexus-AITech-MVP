@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>گزارش جامع سیستم Nexus-AITech</title>
+    <style>
+        body {
+            font-family: 'IRANSans', Tahoma, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            direction: rtl;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background: #003366;
+            color: #fff;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            margin-top: 10px;
+            color: #dcdcdc;
+        }
+        section {
+            margin-bottom: 30px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        h2 {
+            color: #005b96;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #005b96;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>گزارش جامع سیستم هوش Nexus-AITech</h1>
+        <div class="timestamp">تاریخ تولید گزارش: {{ generated_at }}</div>
+    </header>
+
+    <section>
+        <h2>📊 تحلیل داده‌ها</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>شناسه</th>
+                    <th>مقدار</th>
+                    <th>برچسب امنیتی</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in analysis_data %}
+                <tr>
+                    <td>{{ item._id }}</td>
+                    <td>{{ item.amount }}</td>
+                    <td>{{ item.security_label }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>🛡️ تهدیدهای سایبری</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>آی‌پی</th>
+                    <th>نوع تهدید</th>
+                    <th>زمان</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for threat in threats %}
+                <tr>
+                    <td>{{ threat.ip }}</td>
+                    <td>{{ threat.type }}</td>
+                    <td>{{ threat.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>🌐 وضعیت متاورس</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>کاربران فعال</th>
+                    <th>رویدادها</th>
+                    <th>وضعیت</th>
+                    <th>زمان</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in metaverse %}
+                <tr>
+                    <td>{{ m.active_users }}</td>
+                    <td>{{ m.events_today }}</td>
+                    <td>{{ m.status }}</td>
+                    <td>{{ m.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+</body>
+</html>

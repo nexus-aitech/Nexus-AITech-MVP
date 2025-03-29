@@ -21,7 +21,7 @@ logger = logging.getLogger("DataAnalysis")
 data_analyzer = DataAnalyzer()
 
 # آدرس سرور مرکزی (در صورت نیاز)
-CORE_URL = os.getenv("CORE_URL", "http://localhost:5000/api/process")
+CORE_URL = os.getenv("CORE_URL", "http://localhost:8080/api/process")
 
 def simulate_data_analysis(num_samples=10):
     """ شبیه‌سازی تحلیل داده‌ها برای تست سیستم """
@@ -32,7 +32,7 @@ def simulate_data_analysis(num_samples=10):
             "feature_3": [random.choice(["A", "B", "C"]) for _ in range(num_samples)],
             "timestamp": [datetime.utcnow() for _ in range(num_samples)]
         }
-        
+
         df = pd.DataFrame(data)
         return df
     except Exception as e:
@@ -45,10 +45,15 @@ async def analyze_data():
     try:
         real_data = await fetch_real_data()
         analyzed_result = await data_analyzer.analyze(real_data)
-        await store_analysis_result(analyzed_result, datetime.now())
-    
+
+        # افزودن timestamp به نتیجه تحلیل
+        if isinstance(analyzed_result, dict):
+            analyzed_result["timestamp"] = datetime.utcnow().isoformat()
+
+        await store_analysis_result(analyzed_result)
+
         log_info(f"📊 نتایج تحلیل: {json.dumps(analyzed_result, ensure_ascii=False)}")
-    
+
         try:
             response = requests.post(CORE_URL, json={"bot_name": "data_analysis", "processed_data": analyzed_result}, timeout=5)
             if response.status_code == 200:

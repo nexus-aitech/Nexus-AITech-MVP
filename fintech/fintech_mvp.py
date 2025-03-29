@@ -39,16 +39,31 @@ def simulate_financial_transactions(num_transactions=10):
 
 async def process_transaction(tx):
     """ پردازش تکی تراکنش """
+    tx_id = "UNKNOWN"
     try:
         tx_id = tx.get("transaction_id", "UNKNOWN")
+
+        # هماهنگ کردن فیچرها برای پردازش صحیح مدل
+        expected_features = ["amount", "currency", "status"]
+        for feature in expected_features:
+            if feature not in tx:
+                tx[feature] = 0  # مقدار پیش‌فرض برای فیچرهای مفقود
+
+        if not security_model.is_trained:
+            log_info("🔄 آموزش مدل امنیتی در حال اجراست...")
+            await security_model.train_model()
+            log_info("✅ مدل امنیتی با موفقیت آموزش داده شد.")
+
         tx["status"] = await security_model.verify_transaction(tx)
 
         if await fraud_detector.detect_fraud(tx):
             tx["status"] = "Fraud Detected"
             log_error(f"🚨 تراکنش مشکوک به تقلب شناسایی شد! TX ID: {tx_id}")
         else:
-            await store_transaction(tx, datetime.now())
+            tx["timestamp"] = datetime.utcnow().isoformat()
+            await store_transaction(tx)
             log_info(f"✅ تراکنش ثبت شد: {json.dumps(tx, ensure_ascii=False)}")
+
     except Exception as e:
         log_error(f"❌ خطا در پردازش تراکنش {tx_id}: {e}")
 
@@ -61,7 +76,6 @@ async def process_transactions():
             log_info("🚫 هیچ تراکنشی برای پردازش وجود ندارد.")
             return
 
-        # ایمن‌سازی لیست وظایف async
         tasks = []
         for tx in transactions:
             if tx and isinstance(tx, dict):
@@ -83,6 +97,11 @@ async def run_continuous_processing():
 if __name__ == "__main__":
     log_info("🚀 Fintech Processor در حال راه‌اندازی...")
     try:
+        if not security_model.is_trained:
+            log_info("📊 آموزش اولیه مدل امنیتی در حال انجام است...")
+            asyncio.run(security_model.train_model())
+            log_info("✅ مدل امنیتی آماده استفاده است.")
+
         asyncio.run(run_continuous_processing())
     except KeyboardInterrupt:
         log_info("🛑 متوقف شد توسط کاربر.")

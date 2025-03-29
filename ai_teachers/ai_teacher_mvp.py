@@ -5,6 +5,7 @@ import os
 from typing import Dict, List
 from datetime import datetime
 from utils.logger import log_info, log_error
+from utils.fake_data_provider import FakeDataProvider  # ✅ اتصال به داده‌های ساختگی پیشرفته
 
 # اضافه کردن مسیر پروژه به sys.path
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
@@ -28,13 +29,13 @@ class AITeacherSimulator:
 
     async def teach_lesson(self, students: List[str]) -> Dict[str, str]:
         if not students:
-            log_info("🚫 هیچ دانش‌آموز فعالی برای تدریس وجود ندارد.")
+            log_info("\ud83d\udeab هیچ دانش‌آموز فعالی برای تدریس وجود ندارد.")
             return {}
-        
-        log_info("📚 در حال ارائه درس به دانش‌آموزان...")
+
+        log_info("\ud83d\udcda در حال ارائه درس به دانش‌آموزان...")
         tasks = {student: self.fetch_lesson(student) for student in students}
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
-        
+
         lesson_results = {}
         for student, result in zip(tasks.keys(), results):
             if isinstance(result, Exception):
@@ -42,14 +43,17 @@ class AITeacherSimulator:
                 continue
             lesson_results[student] = result
             log_info(f"✅ درس برای {student} ارائه شد: {result}")
-        
+
+        # داده‌های آموزشی ساختگی برای نمایش در داشبورد یا ذخیره‌سازی
+        summary = FakeDataProvider.generate_teacher_data()
+        log_info(f"📊 داده آموزشی شبیه‌سازی‌شده: {summary}")
         return lesson_results
 
 async def simulate_ai_teacher():
     """شبیه‌سازی معلم هوشمند"""
-    log_info("📚 شبیه‌سازی معلم هوشمند در حال اجرا...")
+    log_info("\ud83d\udcda شبیه‌سازی معلم هوشمند در حال اجرا...")
     await asyncio.sleep(2)
-    log_info("📚 شبیه‌سازی معلم هوشمند کامل شد.")
+    log_info("\ud83d\udcda شبیه‌سازی معلم هوشمند کامل شد.")
 
 async def start_ai_teacher():
     """اجرای زنده معلم هوشمند با زمان‌بندی وظایف"""
@@ -60,10 +64,10 @@ async def start_ai_teacher():
             await ai_teacher.teach_lesson(students)
             await asyncio.sleep(10)
     except asyncio.CancelledError:
-        log_info("🛑 اجرای معلم هوشمند متوقف شد.")
+        log_info("\ud83d\udead اجرای معلم هوشمند متوقف شد.")
 
 if __name__ == "__main__":
-    log_info("🚀 AI Teacher در حال راه‌اندازی برای اجرای زنده...")
+    log_info("\ud83d\ude80 AI Teacher در حال راه‌اندازی برای اجرای زنده...")
     try:
         asyncio.run(start_ai_teacher())
     except RuntimeError as e:

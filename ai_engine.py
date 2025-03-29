@@ -1,15 +1,19 @@
+import asyncio
+import json
+import random
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-import pickle
-import os
-from dotenv import load_dotenv
 import logging
 import pymongo
-from datetime import datetime
 import tensorflow as tf
+import pickle
+import os
+from bson import ObjectId
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from dotenv import load_dotenv
+from datetime import datetime
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
@@ -28,6 +32,27 @@ client = pymongo.MongoClient(MONGO_URI)
 db = client["ai_teacher_db"]
 blocks_collection = db["block_data"]
 
+def serialize_data(data):
+    """ تبدیل ObjectId به مقدار رشته برای جلوگیری از خطای JSON """
+    if isinstance(data, ObjectId):
+        return str(data)
+    if isinstance(data, list):  # تبدیل لیست‌های دارای ObjectId
+        return [serialize_data(item) for item in data]
+    if isinstance(data, dict):  # تبدیل دیکشنری‌های دارای ObjectId
+        return {key: serialize_data(value) for key, value in data.items()}
+    return data
+
+# ✅ داده آزمایشی برای بررسی تبدیل ObjectId
+result = {
+    "_id": ObjectId("67e6e6aebe067a032c5ae9f8"),
+    "result": "تحلیل کامل شد",
+    "timestamp": "2025-03-28T18:13:02.751262"
+}
+
+# ✅ تبدیل به JSON بدون خطا
+json_result = json.dumps(result, default=serialize_data)
+print(json_result)
+
 class DataAnalyzer:
     def __init__(self):
         print("✅ DataAnalyzer مقداردهی شد.")
@@ -39,22 +64,22 @@ class DataAnalyzer:
         print("📊 تحلیل داده کامل شد.")
         return {"result": "تحلیل کامل شد"}
 
-    def train_model(self, data):
-        """آموزش مدل تحلیل داده‌ها"""
-        df = pd.DataFrame(data)
-        X = self.scaler.fit_transform(df.drop(columns=["target"]))
-    def predict_users(self, X_input):
-        """پیش‌بینی تعداد کاربران آینده بر اساس داده‌های ورودی"""
-        if not self.is_trained:
-            raise ValueError("🚨 مدل هنوز آموزش ندیده است! لطفاً ابتدا متد train را اجرا کنید.")
-        return self.model.predict(X_input)
+def train_model(self, data):
+    """آموزش مدل تحلیل داده‌ها"""
+    df = pd.DataFrame(data)
+    X = self.scaler.fit_transform(df.drop(columns=["target"]))
+    y = df["target"].values
 
-        y = df["target"].values
-        
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        self.model.fit(X_train, y_train)
-        self.is_trained = True
-        logger.info("✅ مدل تحلیل داده‌ها آموزش داده شد.")
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    self.model.fit(X_train, y_train)
+    self.is_trained = True
+    logger.info("✅ مدل تحلیل داده‌ها آموزش داده شد.")
+
+def predict_users(self, X_input):
+    """پیش‌بینی تعداد کاربران آینده بر اساس داده‌های ورودی"""
+    if not self.is_trained:
+        raise ValueError("🚨 مدل هنوز آموزش ندیده است! لطفاً ابتدا متد train را اجرا کنید.")
+    return self.model.predict(X_input)
 
     def analyze_data(self, input_data):
         """تحلیل یک داده برای شناسایی الگوها"""
@@ -191,7 +216,8 @@ class TransactionAnalyzer:
         """ آموزش مدل تحلیل تراکنش‌ها """
         df = pd.DataFrame(transactions_data)
         df["label"] = df["label"].map({"legit": 0, "fraud": 1})
-        X = self.scaler.fit_transform(df.drop(columns=["label"]))
+        self.feature_names = df.drop(columns=["label"]).columns.tolist()  # ذخیره نام فیچرها
+        X = self.scaler.fit_transform(df[self.feature_names])
         y = df["label"].values
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         self.model.fit(X_train, y_train)
@@ -202,13 +228,14 @@ class TransactionAnalyzer:
         """ تحلیل یک تراکنش برای شناسایی فعالیت‌های مشکوک """
         if not self.is_trained:
             raise ValueError("🚨 مدل آموزش ندیده است! لطفاً ابتدا مدل را آموزش دهید.")
-        transaction_df = pd.DataFrame([transaction])
+        transaction_df = pd.DataFrame([transaction])[self.feature_names]  # انتخاب فقط فیچرهای آموزش‌دیده
         transaction_scaled = self.scaler.transform(transaction_df)
         prediction = self.model.predict(transaction_scaled)
         return "مشکوک" if prediction[0] == 1 else "عادی"
 
 class TransactionSecurity:
     """ بررسی امنیت تراکنش‌ها با استفاده از الگوریتم‌های یادگیری ماشین """
+
     def __init__(self):
         self.security_model = RandomForestClassifier(n_estimators=50, random_state=42)
         self.scaler = StandardScaler()
@@ -234,15 +261,26 @@ class TransactionSecurity:
         prediction = self.security_model.predict(transaction_scaled)
         return "خطر امنیتی" if prediction[0] == 1 else "ایمن"
 
-def store_block_data(block):
-    """ذخیره اطلاعات بلاک‌های بلاکچین در پایگاه داده"""
-    try:
-        block["timestamp"] = datetime.utcnow()
-        blocks_collection.insert_one(block)
-        logger.info(f"✅ بلاک با شناسه {block.get('block_hash')} در پایگاه داده ذخیره شد.")
-    except Exception as e:
-        logger.error(f"❌ خطا در ذخیره بلاک: {e}")
+    async def verify_transaction(self, transaction):
+        """ متد async برای بررسی امنیت تراکنش که قابل استفاده با await باشد """
+        await asyncio.sleep(0)  # شبیه‌سازی async برای سازگاری
+        return self.check_security_risk(transaction)
 
+    async def train_model(self, security_data=None):
+        """
+        آموزش مدل به‌صورت async برای استفاده در بات‌ها.
+        اگر داده‌ای داده نشود، از داده‌های شبیه‌سازی‌شده استفاده می‌شود.
+        """
+        if security_data is None:
+            security_data = [
+                {"amount": 100.0, "location": 1, "frequency": 5, "security_label": "safe"},
+                {"amount": 4000.0, "location": 3, "frequency": 25, "security_label": "threat"},
+                {"amount": 50.0, "location": 2, "frequency": 3, "security_label": "safe"},
+                {"amount": 10000.0, "location": 1, "frequency": 40, "security_label": "threat"},
+            ]
+        await asyncio.sleep(0.5)
+        self.train_security_model(security_data)
+        
 class CryptoPredictor:
     """مدل یادگیری ماشین برای پیش‌بینی قیمت ارزهای دیجیتال"""
     def __init__(self):

@@ -1,3 +1,6 @@
+fastapi
+requests
+gunicorn
 uvicorn
 aiohappyeyeballs>=2.3.0
 dash-bootstrap-components
